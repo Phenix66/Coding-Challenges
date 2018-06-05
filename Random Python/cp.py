@@ -21,16 +21,22 @@ def mycopy():
 
 try:
     confirm = "n"
-    if os.path.isfile(dst):
-        confirm = raw_input("Destination file exists, do you want to overwrite? (y/N) ")
-        if confirm.lower() == "y" or confirm.lower() == "yes":
-            mycopy()
-        elif confirm.lower() == "n" or confirm.lower() == "no":
-            print "Skipping copy"
+    if os.path.exists(dst):
+        if os.path.isfile(dst):
+            confirm = raw_input("Destination file exists, do you want to overwrite? (y/N) ")
+            if confirm.lower() == "y" or confirm.lower() == "yes":
+                mycopy()
+            elif confirm.lower() == "n" or confirm.lower() == "no":
+                print "Skipping copy"
+            else:
+                print "Invalid overwrite option specified, skipping copy"
         else:
-            print "Invalid overwrite option specified, skipping copy"
-    else:        
-        mycopy()
+            mycopy()
+        if os.path.isdir(dst):
+            print "Cannot overwrite directory"
+            sys.exit(1)
+    else:
+        print "Desination path does not exist"
 except IOError, err:
     print err
     sys.exit(1)
