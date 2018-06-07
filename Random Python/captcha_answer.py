@@ -1,8 +1,8 @@
 #!/usr/bin/python
 import socket
 import os
-import modules/word2number as w2n
-import modules/num2words as n2w
+from modules import word2number as w2n
+from modules import num2words as n2w
 
 IP = "127.0.0.1"
 PORT = 12345
