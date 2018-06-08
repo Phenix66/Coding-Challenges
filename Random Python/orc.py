@@ -3,12 +3,16 @@ import sys
 import random
 
 class Orc:
-    def __init__(self, name):
+    def __init__(self, name, health, atk_dmg, atk_speed):
         self.name = name
-        self.health = 100
+        self.health = health
+        self.atk_dmg = atk_dmg
+        self.atk_speed = atk_speed
 
     def attack(self, attacker, target):
-        dmg = random.randint(5,25)
+        # Damage calculation is made by taking a random roll and multiplying it by attack damage.
+        # Higher attack speeds allow for more hits
+        dmg = (random.randint(1, 5) * self.atk_dmg) * self.atk_speed
         target.take_dmg(dmg)
         if attacker == target:
             print "\n%s attacked himself for %d!" % (attacker.name, dmg)
@@ -29,6 +33,14 @@ class Orc:
         else:
             return False
 
+class LargeOrc(Orc):
+    def __init__(self, name):
+        Orc.__init__(self, name, 100, 5, 1)
+
+class SmallOrc(Orc):
+    def __init__(self, name):
+        Orc.__init__(self, name, 75, 2, 3)
+
 def choose_tgt(players, attacker):
     proceed = False
     while proceed == False:
@@ -39,7 +51,8 @@ def choose_tgt(players, attacker):
                 print " Player %s) %s  HP:%3s" % (counter, x.name, x.health)
             counter += 1
         try:
-            target = int(raw_input("\n%s please choose a target (1-%s): " % (players[attacker].name, len(players))))-1
+            target = int(raw_input("\n%s please choose a target (1-%s): " \
+                                % (players[attacker].name, len(players))))-1
             if target == attacker:
                 confirm = raw_input("Are you sure you want to attack yourself stupid? ")
                 if confirm.lower() == "y" or confirm.lower() == "yes":
@@ -58,8 +71,14 @@ if __name__ == "__main__":
     counter = 1
     while True:
         try:
-            input = raw_input("Enter Player %s's orc name: " % (counter))
-            players.append(Orc(input))
+            inputName = raw_input("Enter Player %s's orc name: " % (counter))
+            inputClass = raw_input("Small Orc or Large Orc? ")
+            if inputClass.lower() == "small":
+                players.append(SmallOrc(inputName))
+            elif inputClass.lower() == "large":
+                players.append(LargeOrc(inputName))
+            else:
+                print "Invalid class selection"
             counter += 1
             if len(players) > 1:
                 more = raw_input("Add another player? (y/N) ")
