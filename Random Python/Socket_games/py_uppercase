@@ -1,0 +1,70 @@
+#!/usr/bin/python
+
+import os
+import md5
+import sys
+import time
+import random
+import subprocess
+import SocketServer
+      
+HOST = ''
+PORT = 40001
+
+def getWordlist():
+    CURDIR = os.path.dirname(os.path.realpath(__file__))
+    DICTFILE = "%s/ipsum.txt" % (CURDIR)
+    f = open(DICTFILE)
+    data = f.read()
+    f.close()
+    tokens = data.split()
+    return tokens
+
+WORDLIST = getWordlist()
+
+class SingleTCPHandler(SocketServer.BaseRequestHandler):
+    def handle(self):
+        # User succeeds by returning capitalized string in <1second
+        phrase = self.randomString(WORDLIST)
+        self.request.send("Capitalize the following phrase:\n%s\n" % phrase)
+        begin = time.time()
+        reply = self.request.recv(4096)
+        seconds = time.time() - begin
+        CORRECT = False    
+        if(reply.strip()==phrase.strip().upper()):
+            CORRECT = True
+        if(CORRECT and seconds<1.0):
+            self.request.send("CORRECT!\n")
+            self.doShell()
+        elif(CORRECT):
+            self.request.send("Right answer, but too slow.\n")
+        else:
+            self.request.send("Incorrect answer.\n")
+
+    def doShell(self):
+        os.dup2(self.request.fileno(), 0)
+        os.dup2(self.request.fileno(), 1)
+        os.dup2(self.request.fileno(), 2)
+        subprocess.call(["/bin/sh", "-i"], shell=True)
+
+    def randomString(self, words):
+        lizt = []
+        maxindex = len(words)-1
+        for i in range(5):
+            rindex = random.randint(0, maxindex)
+            lizt.append(words[rindex])
+        return " ".join(lizt).strip()
+
+class ThreadedServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+    daemon_threads = True
+    allow_reuse_address = True
+    def __init__(self, server_address, RequestHandlerClass):
+        SocketServer.TCPServer.__init__(self, server_address, RequestHandlerClass)
+
+if __name__=="__main__":
+    server = ThreadedServer((HOST, PORT), SingleTCPHandler)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print
+        sys.exit(0)
