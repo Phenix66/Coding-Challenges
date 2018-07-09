@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# Outputs the contents of a file, similar to linux "cat" command
 import sys
 
 lstFiles = []
