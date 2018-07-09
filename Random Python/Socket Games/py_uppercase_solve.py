@@ -9,9 +9,9 @@ s = socket.socket()
 s.connect((IP, PORT))
 
 challenge = (s.recv(4096).split("\n"))[1]
-response = challenge.upper()
+answer = challenge.upper()
 
-s.send(response)
+s.send(answer)
 
-answer = s.recv(4096)
-print answer
+response = s.recv(4096)
+print response
