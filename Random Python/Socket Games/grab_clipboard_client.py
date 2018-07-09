@@ -9,7 +9,7 @@ while True:
     user32.OpenClipboard(None)
     clipdata = ctypes.c_char_p(user32.GetClipboardData(1)).value
     user32.CloseClipboard()
-    if clipdata == olddata:
+    if (clipdata == olddata) or (clipdata is None):
         time.sleep(5)
     else:
         olddata = clipdata
