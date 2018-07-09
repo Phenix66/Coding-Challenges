@@ -1,0 +1,81 @@
+#!/usr/bin/python
+
+import os
+import md5
+import sys
+import time
+import random
+import string
+import subprocess
+import SocketServer
+
+HOST = ''
+PORT = 40005
+GUESS_CORRECT = 3
+GUESS_AGAIN = 2
+
+class SingleTCPHandler(SocketServer.BaseRequestHandler):
+    def handle(self):
+        number = random.randint(1, 1000)
+        begin = time.time()
+        msg = "I am thinking of a number from 1-1000. You have 10 guesses.\n\n"
+        msg = msg + "\n"
+        try:
+            self.request.send(msg)
+            # Ask user to enter a number up to 10 times
+            level = 1
+            val = GUESS_AGAIN
+            while(level<=10 and val==GUESS_AGAIN):
+                val = self.question(number, level)
+                level = level + 1
+            # Guesses are complete; decide whether the user succeeded
+            seconds = time.time() - begin
+            if(val==GUESS_CORRECT):
+                if(seconds>1.0):
+                    self.request.send("Correct answer, but too slow.\n");
+                else:
+                    self.request.send("Correct answer in < 1 second!\n");
+                    self.doShell()
+            else:
+                self.request.send("You did not guess my number.\n");
+            self.request.close()
+        except:
+            # This happens if the pipe is broken or client hits ctrl-c
+            self.request.close()
+
+    def doShell(self):
+        os.dup2(self.request.fileno(), 0)
+        os.dup2(self.request.fileno(), 1)
+        os.dup2(self.request.fileno(), 2)
+        subprocess.call(["/bin/sh", "-i"], shell=True)
+
+    # Processes a single guess from the user
+    def question(self, number, level):
+        reply = self.request.recv(4096)
+        try:
+            guess = string.atoi(reply.strip())
+        except ValueError:
+            self.request.send("ERROR: not an integer. Please enter digits only.\n")
+            return GUESS_AGAIN
+        if(guess==number):
+           return GUESS_CORRECT
+        elif(guess<number):
+            self.request.send("Higher...\n")
+        elif(guess>number):
+            self.request.send("Lower...\n")
+        return GUESS_AGAIN
+
+class ThreadedServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+    daemon_threads = True
+    allow_reuse_address = True
+    def __init__(self, server_address, RequestHandlerClass):
+        SocketServer.TCPServer.__init__(self, server_address, RequestHandlerClass)
+
+if __name__=="__main__":
+    server = ThreadedServer((HOST, PORT), SingleTCPHandler)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print
+        sys.exit(0)
+
