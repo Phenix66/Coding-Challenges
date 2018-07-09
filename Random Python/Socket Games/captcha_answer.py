@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import socket
 import os
+import sys
+sys.path.append('../')
 from modules import word2number as w2n
 from modules import num2words as n2w
 
