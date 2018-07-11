@@ -1,7 +1,6 @@
 #!/usr/bin/python
 import socket
 import sys
-import pattern
 
 target = sys.argv[1]
 port = 80
