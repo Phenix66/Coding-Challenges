@@ -13,11 +13,13 @@ try:
 except IndexError:
     pass
 
+# Accept user specified directory, uses current directory otherwise
 if len(sys.argv) > 1:
     inputDir = sys.argv[1]
 else:
     inputDir = "."
 
+# Get directory listing and sort alphabetically 
 files = os.listdir(inputDir)
 files_sorted = sorted(files, key=str.lower)
 
@@ -48,16 +50,27 @@ def perms_calc(file, stat):
             perms = perms[:9] + "t"
     return perms
 
-#color = ""
-#if modestr[0]=="d"
-#    color = LTBLUE
-#elif(modestr.find("x")>-1:
-#    color = LTGREEN
+# Define colors by name for easy reference
+LTBLUE = '\033[96m'
+LTGREEN = '\033[92m'
+WHITE = '\033[97m'
+
+def colorize(modestr, color = WHITE):
+    if modestr[0] == "d":
+        # Is a directory
+        color = LTBLUE
+    elif modestr.find("x") > -1:
+        # Is a file
+        color = LTGREEN
+    return color
 
 for file in files_sorted:
+    # Absolute path
     fullname = "%s/%s" % (inputDir, file)
+    # Gets file info
     stat = os.stat(fullname)
     perms = perms_calc(fullname, stat)
+    color = colorize(perms)
     nlink = stat.st_nlink
     uid = stat.st_uid
     gid = stat.st_gid
@@ -66,4 +79,4 @@ for file in files_sorted:
     size = stat.st_size
     lastmodified = time.localtime(os.path.getmtime(fullname))
     mod_time = time.strftime("%b %d %H:%M", lastmodified)
-    print("%s %3s %6s %6s %8s %s %s" % (perms, nlink, user, group, size, mod_time, file))
+    print("%s %3s %6s %6s %8s %s %s %s \033[0m" % (perms, nlink, user, group, size, mod_time, color, file))
