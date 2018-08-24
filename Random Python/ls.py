@@ -7,8 +7,8 @@ import time
 
 try:
     if len(sys.argv[1:]) > 1:
-        print "ls only handles one specified directory at a time!"
-        print "%s <directory>" % (sys.argv[0])
+        print("ls only handles one specified directory at a time!")
+        print("%s <directory>" % (sys.argv[0]))
         sys.exit(1)
 except IndexError:
     pass
@@ -66,4 +66,4 @@ for file in files_sorted:
     size = stat.st_size
     lastmodified = time.localtime(os.path.getmtime(fullname))
     mod_time = time.strftime("%b %d %H:%M", lastmodified)
-    print "%s %3s %6s %6s %8s %s %s" % (perms, nlink, user, group, size, mod_time, file)
+    print("%s %3s %6s %6s %8s %s %s" % (perms, nlink, user, group, size, mod_time, file))
